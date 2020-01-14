@@ -111,6 +111,7 @@ tf_py_test(
     tags = [
         "no_cuda_on_cpu_tap",
         "no_pip",
+        "no_rocm",
         "no_windows",
     ],
     deps = [
@@ -163,6 +164,7 @@ tf_py_test(
     tags = [
         "no_cuda_on_cpu_tap",
         "no_pip",
+        "no_rocm",
         "no_windows",
     ],
     deps = [":feature_column_v2_test_main_lib"],
