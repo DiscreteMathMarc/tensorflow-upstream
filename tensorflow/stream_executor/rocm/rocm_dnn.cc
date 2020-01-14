@@ -1584,6 +1584,8 @@ miopenDataType_t ToMIOpenDataType(
   switch (data_type) {
     case dnn::DataType::kFloat:
       return miopenFloat;
+    case dnn::DataType::kBFloat16:
+      return miopenBFloat16;
     case dnn::DataType::kHalf:
       return miopenHalf;
     case dnn::DataType::kDouble:
@@ -1642,6 +1644,8 @@ int MIOpenDataTypeToByteSize(miopenDataType_t data_type) {
       return sizeof(float);
     case miopenHalf:
       return sizeof(Eigen::half);
+    case dnn::DataType::kBFloat16:
+      return sizeof(tensorflow::bfloat16);
     default:
       LOG(FATAL) << "Invalid DNN data type: " << static_cast<int>(data_type);
   }
@@ -1658,6 +1662,7 @@ dnn::DataType GetConvAccumulatorType(dnn::DataType data_type) {
     case dnn::DataType::kDouble:
       return data_type;
     case dnn::DataType::kHalf:
+    case dnn::DataType::kBFloat16:
       // FIXME: Check if MIOpen can switch dynamically change accumulator type
       return dnn::DataType::kFloat;
     case dnn::DataType::kInt8:
