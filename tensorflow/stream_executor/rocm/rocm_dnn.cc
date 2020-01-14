@@ -62,6 +62,7 @@ namespace stream_executor {
 
 using dnn::BatchDescriptor;
 using dnn::ConvolutionDescriptor;
+using dnn::DropoutDescriptor;
 using dnn::FilterDescriptor;
 using dnn::NormalizeDescriptor;
 using dnn::PoolingDescriptor;
@@ -177,110 +178,102 @@ namespace wrap {
 #endif
 
 // clang-format off
-#define MIOPEN_DNN_ROUTINE_EACH(__macro)                             \
-  __macro(miopenBatchNormalizationBackward)                          \
-  __macro(miopenBatchNormalizationForwardInference)                  \
-  __macro(miopenBatchNormalizationForwardTraining)                   \
-  __macro(miopenGetConvolutionForwardOutputDim)                      \
-  __macro(miopenGetConvolutionNdForwardOutputDim)                    \
-  __macro(miopenFindConvolutionForwardAlgorithm)                     \
-  __macro(miopenCreateTensorDescriptor)                              \
-  __macro(miopenDestroyTensorDescriptor)                             \
-  __macro(miopenSet2dPoolingDescriptor)                              \
-  __macro(miopenSetLRNDescriptor)                                    \
-  __macro(miopenLRNGetWorkSpaceSize)                                 \
-  __macro(miopenCreateConvolutionDescriptor)                         \
-  __macro(miopenCreatePoolingDescriptor)                             \
-  __macro(miopenDestroyPoolingDescriptor)                            \
-  __macro(miopenCreateLRNDescriptor)                                 \
-  __macro(miopenDestroyLRNDescriptor)                                \
-  __macro(miopenDestroyConvolutionDescriptor)                        \
-  __macro(miopenCreateWithStream)                                    \
-  __macro(miopenDestroy)                                             \
-  __macro(miopenSetStream)                                           \
-  __macro(miopenSetAllocator)                                        \
-  __macro(miopenActivationForward)                                   \
-  __macro(miopenConvolutionForward)                                  \
-  __macro(miopenConvolutionBackwardBias)                             \
-  __macro(miopenConvolutionForwardGetWorkSpaceSize)                  \
-  __macro(miopenInitConvolutionDescriptor)                           \
-  __macro(miopenInitConvolutionNdDescriptor)                         \
-  __macro(miopenGetConvolutionDescriptor)                            \
-  __macro(miopenGetConvolutionNdDescriptor)                          \
-  __macro(miopenSetConvolutionGroupCount)                            \
-  __macro(miopenSet4dTensorDescriptor)                               \
-  __macro(miopenGetTensorDescriptor)                                 \
-  __macro(miopenSetTensorDescriptor)                                 \
-  __macro(miopenGetTensorDescriptorSize)                             \
-  __macro(miopenPoolingForward)                                      \
-  __macro(miopenPoolingGetWorkSpaceSize)                             \
-  __macro(miopenPoolingBackward)                                     \
-  __macro(miopenLRNForward)                                          \
-  __macro(miopenLRNBackward)                                         \
-  __macro(miopenOpTensor)                                            \
-  __macro(miopenConvolutionBackwardData)                             \
-  __macro(miopenConvolutionBackwardWeights)                          \
-  __macro(miopenConvolutionBackwardWeightsGetWorkSpaceSize)          \
-  __macro(miopenFindConvolutionBackwardDataAlgorithm)                \
-  __macro(miopenFindConvolutionBackwardWeightsAlgorithm)             \
-  __macro(miopenConvolutionBackwardDataGetWorkSpaceSize)             \
-  __macro(miopenCreateRNNDescriptor)                                 \
-  __macro(miopenSetRNNDescriptor)                                    \
-  __macro(miopenDestroyRNNDescriptor)                                \
-  __macro(miopenGetRNNParamsSize)                                    \
-  __macro(miopenGetRNNLayerParam)                                    \
-  __macro(miopenGetRNNLayerBias)                                     \
-  __macro(miopenGetRNNWorkspaceSize)                                 \
-  __macro(miopenGetRNNTrainingReserveSize)                           \
-  __macro(miopenRNNForwardInference)                                 \
-  __macro(miopenRNNForwardTraining)                                  \
-  __macro(miopenRNNBackwardData)                                     \
-  __macro(miopenRNNBackwardWeights)                                  \
-  __macro(miopenGetRNNLayerParamOffset)                              \
-  __macro(miopenGetRNNLayerParamSize)                                \
-  __macro(miopenGetRNNLayerBiasOffset)                               \
-  __macro(miopenGetRNNLayerBiasSize)                                 \
-  __macro(miopenGetRNNParamsDescriptor)                              \
-  __macro(miopenCreateActivationDescriptor)                          \
-  __macro(miopenSetActivationDescriptor)                             \
-  __macro(miopenGetActivationDescriptor)                             \
-  __macro(miopenDestroyActivationDescriptor)                         \
-  __macro(miopenCreateFusionPlan)                                    \
-  __macro(miopenCreateOpConvForward)                                 \
-  __macro(miopenCreateOpBiasForward)                                 \
-  __macro(miopenCreateOpActivationForward)                           \
-  __macro(miopenCreateOpActivationBackward)                          \
-  __macro(miopenCreateOpBatchNormInference)                          \
-  __macro(miopenCreateOpBatchNormForward)                            \
-  __macro(miopenCreateOpBatchNormBackward)                           \
-  __macro(miopenCompileFusionPlan)                                   \
-  __macro(miopenFusionPlanGetOp)                                     \
-  __macro(miopenCreateOperatorArgs)                                  \
-  __macro(miopenSetOpArgsConvForward)                                \
-  __macro(miopenSetOpArgsBiasForward)                                \
-  __macro(miopenSetOpArgsActivForward)                               \
-  __macro(miopenSetOpArgsActivBackward)                              \
-  __macro(miopenSetOpArgsBatchNormInference)                         \
-  __macro(miopenSetOpArgsBatchNormForward)                           \
-  __macro(miopenSetOpArgsBatchNormBackward)                          \
-  __macro(miopenExecuteFusionPlan)                                   \
-  __macro(miopenDestroyOperatorArgs)                                 \
-  __macro(miopenDestroyFusionPlan)                                   \
-  __macro(miopenConvolutionForwardGetSolutionCount)                  \
-  __macro(miopenConvolutionForwardGetSolution)                       \
-  __macro(miopenConvolutionForwardGetSolutionWorkspaceSize)          \
-  __macro(miopenConvolutionForwardCompileSolution)                   \
-  __macro(miopenConvolutionForwardImmediate)                         \
-  __macro(miopenConvolutionBackwardDataGetSolutionCount)             \
-  __macro(miopenConvolutionBackwardDataGetSolution)                  \
-  __macro(miopenConvolutionBackwardDataGetSolutionWorkspaceSize)     \
-  __macro(miopenConvolutionBackwardDataCompileSolution)              \
-  __macro(miopenConvolutionBackwardDataImmediate)                    \
-  __macro(miopenConvolutionBackwardWeightsGetSolutionCount)          \
-  __macro(miopenConvolutionBackwardWeightsGetSolution)               \
-  __macro(miopenConvolutionBackwardWeightsGetSolutionWorkspaceSize)  \
-  __macro(miopenConvolutionBackwardWeightsCompileSolution)           \
-  __macro(miopenConvolutionBackwardWeightsImmediate)
+#define MIOPEN_DNN_ROUTINE_EACH(__macro)                   \
+  __macro(miopenBatchNormalizationBackward)                \
+  __macro(miopenBatchNormalizationForwardInference)        \
+  __macro(miopenBatchNormalizationForwardTraining)         \
+  __macro(miopenGetConvolutionForwardOutputDim)            \
+  __macro(miopenGetConvolutionNdForwardOutputDim)          \
+  __macro(miopenFindConvolutionForwardAlgorithm)           \
+  __macro(miopenCreateTensorDescriptor)                    \
+  __macro(miopenDestroyTensorDescriptor)                   \
+  __macro(miopenSet2dPoolingDescriptor)                    \
+  __macro(miopenSetLRNDescriptor)                          \
+  __macro(miopenLRNGetWorkSpaceSize)                       \
+  __macro(miopenCreateConvolutionDescriptor)               \
+  __macro(miopenCreatePoolingDescriptor)                   \
+  __macro(miopenDestroyPoolingDescriptor)                  \
+  __macro(miopenCreateDropoutDescriptor)                   \
+  __macro(miopenDestroyDropoutDescriptor)                  \
+  __macro(miopenCreateLRNDescriptor)                       \
+  __macro(miopenDestroyLRNDescriptor)                      \
+  __macro(miopenDestroyConvolutionDescriptor)              \
+  __macro(miopenCreateWithStream)                          \
+  __macro(miopenDestroy)                                   \
+  __macro(miopenSetStream)                                 \
+  __macro(miopenSetAllocator)                              \
+  __macro(miopenActivationForward)                         \
+  __macro(miopenConvolutionForward)                        \
+  __macro(miopenConvolutionBackwardBias)                   \
+  __macro(miopenConvolutionForwardGetWorkSpaceSize)        \
+  __macro(miopenInitConvolutionDescriptor)                 \
+  __macro(miopenInitConvolutionNdDescriptor)               \
+  __macro(miopenGetConvolutionDescriptor)                  \
+  __macro(miopenGetConvolutionNdDescriptor)                \
+  __macro(miopenSetConvolutionGroupCount)                  \
+  __macro(miopenSet4dTensorDescriptor)                     \
+  __macro(miopenGetTensorDescriptor)                       \
+  __macro(miopenSetTensorDescriptor)                       \
+  __macro(miopenGetTensorDescriptorSize)                   \
+  __macro(miopenPoolingForward)                            \
+  __macro(miopenPoolingGetWorkSpaceSize)                   \
+  __macro(miopenPoolingBackward)                           \
+  __macro(miopenDropoutForward)                            \
+  __macro(miopenDropoutBackward)                           \
+  __macro(miopenDropoutGetStatesSize)                      \
+  __macro(miopenRestoreDropoutDescriptor)                  \
+  __macro(miopenSetDropoutDescriptor)                      \
+  __macro(miopenLRNForward)                                \
+  __macro(miopenLRNBackward)                               \
+  __macro(miopenOpTensor)                                  \
+  __macro(miopenConvolutionBackwardData)                   \
+  __macro(miopenConvolutionBackwardWeights)                \
+  __macro(miopenConvolutionBackwardWeightsGetWorkSpaceSize)\
+  __macro(miopenFindConvolutionBackwardDataAlgorithm)      \
+  __macro(miopenFindConvolutionBackwardWeightsAlgorithm)   \
+  __macro(miopenConvolutionBackwardDataGetWorkSpaceSize)   \
+  __macro(miopenCreateRNNDescriptor)                       \
+  __macro(miopenSetRNNDescriptor)                          \
+  __macro(miopenDestroyRNNDescriptor)                      \
+  __macro(miopenGetRNNParamsSize)                          \
+  __macro(miopenGetRNNLayerParam)                          \
+  __macro(miopenGetRNNLayerBias)                           \
+  __macro(miopenGetRNNWorkspaceSize)                       \
+  __macro(miopenGetRNNTrainingReserveSize)                 \
+  __macro(miopenRNNForwardInference)                       \
+  __macro(miopenRNNForwardTraining)                        \
+  __macro(miopenRNNBackwardData)                           \
+  __macro(miopenRNNBackwardWeights)                        \
+  __macro(miopenGetRNNLayerParamOffset)                    \
+  __macro(miopenGetRNNLayerParamSize)                      \
+  __macro(miopenGetRNNLayerBiasOffset)                     \
+  __macro(miopenGetRNNLayerBiasSize)                       \
+  __macro(miopenGetRNNParamsDescriptor)                    \
+  __macro(miopenCreateActivationDescriptor)                \
+  __macro(miopenSetActivationDescriptor)                   \
+  __macro(miopenGetActivationDescriptor)                   \
+  __macro(miopenDestroyActivationDescriptor)               \
+  __macro(miopenCreateFusionPlan)                          \
+  __macro(miopenCreateOpConvForward)                       \
+  __macro(miopenCreateOpBiasForward)                       \
+  __macro(miopenCreateOpActivationForward)                 \
+  __macro(miopenCreateOpActivationBackward)                \
+  __macro(miopenCreateOpBatchNormInference)                \
+  __macro(miopenCreateOpBatchNormForward)                  \
+  __macro(miopenCreateOpBatchNormBackward)                 \
+  __macro(miopenCompileFusionPlan)                         \
+  __macro(miopenFusionPlanGetOp)                           \
+  __macro(miopenCreateOperatorArgs)                        \
+  __macro(miopenSetOpArgsConvForward)                      \
+  __macro(miopenSetOpArgsBiasForward)                      \
+  __macro(miopenSetOpArgsActivForward)                     \
+  __macro(miopenSetOpArgsActivBackward)                    \
+  __macro(miopenSetOpArgsBatchNormInference)               \
+  __macro(miopenSetOpArgsBatchNormForward)                 \
+  __macro(miopenSetOpArgsBatchNormBackward)                \
+  __macro(miopenExecuteFusionPlan)                         \
+  __macro(miopenDestroyOperatorArgs)                       \
+  __macro(miopenDestroyFusionPlan)
 
 // clang-format on
 
@@ -747,6 +740,66 @@ class ScopedConvolutionDescriptor {
   miopenConvolutionDescriptor_t handle_;  // Owned.
 
   SE_DISALLOW_COPY_AND_ASSIGN(ScopedConvolutionDescriptor);
+};
+
+class ScopedDropoutDescriptor {
+ public:
+  ScopedDropoutDescriptor(Stream* stream, miopenHandle_t miopen_handle,
+                          const DropoutDescriptor& dropout_descriptor,
+                          ScratchAllocator* state_allocator)
+      : handle_(nullptr) {
+    auto status = wrap::miopenCreateDropoutDescriptor(&handle_);
+    if (status != miopenStatusSuccess) {
+      LOG(FATAL) << "could not create miopen dropout descriptor: "
+                 << ToString(status);
+    }
+
+    if (state_allocator) {
+      size_t mask_sizes_in_bytes = dropout_descriptor.mask().size();
+      auto allocated = state_allocator->AllocateBytes(mask_sizes_in_bytes);
+      if (!allocated.ok() ||
+          (mask_memory_ = allocated.ValueOrDie()) == nullptr) {
+        LOG(ERROR) << "Failed to allocate dropout mask";
+        return;
+      }
+      stream->ThenMemcpy(&mask_memory_, dropout_descriptor.mask().data(),
+                         dropout_descriptor.mask().size());
+    }
+
+    // Note that we hard code rng_mode now because there is only one node
+    // available, and this option is not part of user API. In the future we may
+    // consider exposing this as a field in DropoutDescriptor
+    //
+    // We use Restore instead of Set DropoutDescriptor because the RNG random
+    // generator is slow. Therefore, we set use_mask to True and use CPU
+    // generated random mask
+    status = wrap::miopenRestoreDropoutDescriptor(
+        handle_, miopen_handle, dropout_descriptor.rate(), nullptr, 0,
+        dropout_descriptor.seed(),
+        /*use_mask=*/true, /*state_evo=*/false,
+        /*rng_mode=*/miopenRNGType_t::MIOPEN_RNG_PSEUDO_XORWOW);
+    if (status != miopenStatusSuccess) {
+      LOG(FATAL) << "could not restore miopen dropout descriptor: "
+                 << ToString(status);
+    }
+  }
+
+  miopenDropoutDescriptor_t handle() const { return handle_; }
+
+  DeviceMemory<uint8> mask() const { return mask_memory_; }
+
+  ~ScopedDropoutDescriptor() {
+    auto status = wrap::miopenDestroyDropoutDescriptor(handle_);
+    if (status != miopenStatusSuccess) {
+      LOG(ERROR) << "could not destroy miopen dropout descriptor: "
+                 << ToString(status);
+    }
+  }
+
+ private:
+  miopenDropoutDescriptor_t handle_;  // Owned.
+  DeviceMemory<uint8> mask_memory_;   // Owned
+  SE_DISALLOW_COPY_AND_ASSIGN(ScopedDropoutDescriptor);
 };
 
 // Turns a PoolingDescriptor structure into a miopen pooling descriptor handle
@@ -3777,6 +3830,123 @@ bool MIOpenSupport::DoActivate(Stream* stream,
                                uint64 options) {
   LOG(ERROR) << "miopen does not support activation yet";
   return false;
+}
+
+bool MIOpenSupport::DoDropoutForward(
+    Stream* stream, const dnn::DropoutDescriptor& dropout_params,
+    const dnn::BatchDescriptor& noise_dimensions,
+    const dnn::BatchDescriptor& input_dimensions,
+    const DeviceMemory<float>& input_data,
+    const dnn::BatchDescriptor& output_dimensions,
+    DeviceMemory<float>* output_data, ScratchAllocator* workspace_allocator) {
+  auto miopen = miopen_->GetHandle(parent_, stream);
+  const ScopedTensorDescriptor src_desc{input_dimensions, miopenFloat};
+  const ScopedTensorDescriptor dest_desc{output_dimensions, miopenFloat};
+  const ScopedTensorDescriptor noise_desc{noise_dimensions, miopenFloat};
+  const ScopedDropoutDescriptor dropout_desc{
+      stream, miopen.handle(), dropout_params, workspace_allocator};
+
+  auto status = wrap::miopenDropoutForward(
+      miopen.handle(), dropout_desc.handle(), noise_desc.handle(),
+      src_desc.handle(), input_data.opaque(), dest_desc.handle(),
+      output_data->opaque(), dropout_desc.mask().opaque(),
+      dropout_desc.mask().size());
+  if (status != miopenStatusSuccess) {
+    LOG(ERROR) << "failed to enqueue forward dropout on stream: "
+               << ToString(status);
+    return false;
+  }
+  return true;
+}
+
+bool MIOpenSupport::DoDropoutForward(
+    Stream* stream, const dnn::DropoutDescriptor& dropout_params,
+    const dnn::BatchDescriptor& noise_dimensions,
+    const dnn::BatchDescriptor& input_dimensions,
+    const DeviceMemory<Eigen::half>& input_data,
+    const dnn::BatchDescriptor& output_dimensions,
+    DeviceMemory<Eigen::half>* output_data,
+    ScratchAllocator* workspace_allocator) {
+  auto miopen = miopen_->GetHandle(parent_, stream);
+  const ScopedTensorDescriptor src_desc{input_dimensions, miopenHalf};
+  const ScopedTensorDescriptor dest_desc{output_dimensions, miopenHalf};
+  const ScopedTensorDescriptor noise_desc{noise_dimensions, miopenFloat};
+  const ScopedDropoutDescriptor dropout_desc{
+      stream, miopen.handle(), dropout_params, workspace_allocator};
+  auto status = wrap::miopenDropoutForward(
+      miopen.handle(), dropout_desc.handle(), noise_desc.handle(),
+      src_desc.handle(), input_data.opaque(), dest_desc.handle(),
+      output_data->opaque(), dropout_desc.mask().opaque(),
+      dropout_desc.mask().size());
+
+  if (status != miopenStatusSuccess) {
+    LOG(ERROR) << "failed to enqueue forward dropout on stream: "
+               << ToString(status);
+    return false;
+  }
+  return true;
+}
+
+bool MIOpenSupport::DoDropoutBackward(
+    Stream* stream, const dnn::DropoutDescriptor& dropout_params,
+    const dnn::BatchDescriptor& noise_dimensions,
+    const dnn::BatchDescriptor& input_diff_dimensions,
+    const DeviceMemory<float>& input_diff_data,
+    const dnn::BatchDescriptor& output_diff_dimensions,
+    DeviceMemory<float>* output_diff_data,
+    ScratchAllocator* workspace_allocator) {
+  auto miopen = miopen_->GetHandle(parent_, stream);
+  const ScopedTensorDescriptor input_diff_desc{input_diff_dimensions,
+                                               miopenFloat};
+  const ScopedTensorDescriptor output_diff_desc{output_diff_dimensions,
+                                                miopenFloat};
+  const ScopedTensorDescriptor noise_desc{noise_dimensions, miopenFloat};
+  const ScopedDropoutDescriptor dropout_desc{
+      stream, miopen.handle(), dropout_params, workspace_allocator};
+
+  auto status = wrap::miopenDropoutBackward(
+      miopen.handle(), dropout_desc.handle(), noise_desc.handle(),
+      /*dyDesc*/ input_diff_desc.handle(), /*dy*/ input_diff_data.opaque(),
+      /*dxDesc*/ output_diff_desc.handle(), /*dx*/ output_diff_data->opaque(),
+      dropout_desc.mask().opaque(), dropout_desc.mask().size());
+
+  if (status != miopenStatusSuccess) {
+    LOG(ERROR) << "failed to enqueue backward dropout on stream: "
+               << ToString(status);
+    return false;
+  }
+  return true;
+}
+
+bool MIOpenSupport::DoDropoutBackward(
+    Stream* stream, const dnn::DropoutDescriptor& dropout_params,
+    const dnn::BatchDescriptor& noise_dimensions,
+    const dnn::BatchDescriptor& input_diff_dimensions,
+    const DeviceMemory<Eigen::half>& input_diff_data,
+    const dnn::BatchDescriptor& output_diff_dimensions,
+    DeviceMemory<Eigen::half>* output_diff_data,
+    ScratchAllocator* workspace_allocator) {
+  auto miopen = miopen_->GetHandle(parent_, stream);
+  const ScopedTensorDescriptor input_diff_desc{input_diff_dimensions,
+                                               miopenHalf};
+  const ScopedTensorDescriptor output_diff_desc{output_diff_dimensions,
+                                                miopenHalf};
+  const ScopedTensorDescriptor noise_desc{noise_dimensions, miopenFloat};
+  const ScopedDropoutDescriptor dropout_desc{
+      stream, miopen.handle(), dropout_params, workspace_allocator};
+
+  auto status = wrap::miopenDropoutBackward(
+      miopen.handle(), dropout_desc.handle(), noise_desc.handle(),
+      /*dyDesc*/ input_diff_desc.handle(), /*dy*/ input_diff_data.opaque(),
+      /*dxDesc*/ output_diff_desc.handle(), /*dx*/ output_diff_data->opaque(),
+      dropout_desc.mask().opaque(), dropout_desc.mask().size());
+
+  if (status != miopenStatusSuccess) {
+    LOG(ERROR) << "failed to enqueue backward dropout on stream: "
+               << ToString(status);
+    return false;
+  }
+  return true;
 }
 
 bool MIOpenSupport::DoPoolForward(
