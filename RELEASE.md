@@ -268,12 +268,12 @@ For information on upgrading your existing TensorFlow 1.x models, please refer t
   * TensorFlow 2.0.0 is built using devtoolset7 (GCC7) on Ubuntu 16. This may lead to ABI incompatibilities with extensions built against earlier versions of TensorFlow.
   * Tensorflow code now produces 2 different pip packages: tensorflow_core containing all the code (in the future it will contain only the private implementation) and tensorflow which is a virtual pip package doing forwarding to tensorflow_core (and in the future will contain only the public API of tensorflow). We don't expect this to be breaking, unless you were importing directly from the implementation.
   Removed the `freeze_graph` command line tool; `SavedModel` should be used in place of frozen graphs.
-  
+
 * `tf.contrib`:
   * `tf.contrib` has been deprecated, and functionality has been either migrated to the core TensorFlow API, to an ecosystem project such as [tensorflow/addons](https://www.github.com/tensorflow/addons) or [tensorflow/io](https://www.github.com/tensorflow/io), or removed entirely.
   * Remove `tf.contrib.timeseries` dependency on TF distributions.
   * Replace contrib references with `tf.estimator.experimental.*` for apis in `early_stopping.py`.
-  
+
 * `tf.estimator`:
   * Premade estimators in the tf.estimator.DNN/Linear/DNNLinearCombined family have been updated to use `tf.keras.optimizers` instead of the `tf.compat.v1.train.Optimizer`s. If you do not pass in an `optimizer=` arg or if you use a string, the premade estimator will use the Keras optimizer. This is checkpoint breaking, as the optimizers have separate variables. A checkpoint converter tool for converting optimizers is included with the release,  but if you want to avoid any change, switch to the v1 version of the estimator:  `tf.compat.v1.estimator.DNN/Linear/DNNLinearCombined*`.
   * Default aggregation for canned Estimators is now `SUM_OVER_BATCH_SIZE`. To maintain previous default behavior, please pass `SUM` as the loss aggregation method.
@@ -281,13 +281,13 @@ For information on upgrading your existing TensorFlow 1.x models, please refer t
   * `Estimator.export_savedmodel` has been renamed to `export_saved_model`.
   * When saving to SavedModel, Estimators will strip default op attributes. This is almost always the correct behavior, as it is more forwards compatible, but if you require that default attributes to be saved with the model, please use `tf.compat.v1.Estimator`.
   * Feature Columns have been upgraded to be more Eager-friendly and to work with Keras. As a result, `tf.feature_column.input_layer` has been deprecated in favor of `tf.keras.layers.DenseFeatures`. v1 feature columns have direct analogues in v2 except for `shared_embedding_columns`, which are not cross-compatible with v1 and v2. Use `tf.feature_column.shared_embeddings` instead.
-  
+
 * `tf.keras`:
   * `OMP_NUM_THREADS` is no longer used by the default Keras config.  To configure the number of threads, use `tf.config.threading` APIs.
   * `tf.keras.model.save_model` and `model.save` now defaults to saving a TensorFlow SavedModel. HDF5 files are still supported.
   * Deprecated `tf.keras.experimental.export_saved_model` and `tf.keras.experimental.function`. Please use `tf.keras.models.save_model(..., save_format='tf')` and `tf.keras.models.load_model` instead.
   * Layers now default to float32, and automatically cast their inputs to the layer's dtype. If you had a model that used float64, it will probably silently use float32 in TensorFlow 2, and a warning will be issued that starts with `Layer <layer-name>` is casting an input tensor from dtype float64 to the layer's dtype of float32. To fix, either set the default dtype to float64 with `tf.keras.backend.set_floatx('float64')`, or pass `dtype='float64'` to each of the Layer constructors. See `tf.keras.layers.Layer` for more information.
- 
+
 * `tf.lite`:
   * Removed `lite.OpHint`, `lite.experimental`, and `lite.constant` from 2.0 API.
 * Tensors are no longer hashable, but instead compare element-wise with `==` and `!=`. Use `tf.compat.v1.disable_tensor_equality()` to return to the previous behavior.
@@ -692,8 +692,25 @@ This release contains contributions from many people at Google, as well as:
 
 1e100, a6802739, 4d55397500, a6802739, Abdullah Selek, abenmao, Abolfazl Shahbazi, Adam Richter, Adam Weiss, Ag Ramesh, Alan Du, Albin Joy, Alex, Alex Itkes, Alex Sergeev, Alexander Pivovarov, Alexey Romanov, alhkad, Aman Patel, Amit, Amit Kumar Jaiswal, Amit Srivastava, amoitra, Andreas Eberle, Andrew Lihonosov, Andy Craze, Anshuman Tripathy, Anthony Hsu, Anthony Platanios, Anuj Rawat, arp95, Arpit Shah, Armen Poghosov, armenpoghosov, Astropeak, Ashwin Ramaswami, Arpit Shah, Augustina Ragwitz, Aurelien Geron, AuréLien Geron, avasid, aweers, awesomealex1, Ayush Agrawal, Bas Aarts, Bastian Eichenberger, Bairen Yi, Bayberry Z, Ben Barsdell, Benjamin Peterson, bhack, Bharat Raghunathan, Bhavani Subramanian, Bin Fan, blairhan, BléNesi Attila, Bodin-E, Brandon Carter, Bryan Cutler, candy.dc, Cao Zongyan, Casper Da Costa-Luis, Chao Liu, Chen Guoyin, chenchc, chengchingwen, chie8842, Christian Hansen, Christoph Boeddeker, Christopher Yeh, Clayne Robison, Coady, Patrick, crafet, csukuangfj, ctiijima, Dan Jarvis, Dan Lazewatsky, Daniel Ingram, Daniel Rasmussen, Daniel Salvadori, Dave Airlie, David Norman, Dayananda V, delock, Denis Khalikov, Deven Desai, Dheeraj Rajaram Reddy, Diego Caballero, dmitrievanthony, Donovan Ong, Drew Szurko, Duncan Dean, Duncan Riach, Dustin Neighly, Dwight J Lyle, Eamon Ito-Fisher, eashtian3, Edward Forgacs, EFanZh, ejot, Elroy Ashtian Jr, Eric Schweitz, Evgeniy Polyakov, Fangjun Kuang, Federico Martinez, Fei Hu, Felix Lemke, Filip Matzner, FlashTek, fo40225, formath, FrançOis Chollet, frreiss, Fred Reiss, Frederic Bastien, Fredrik Knutsson, G. Hussain Chinoy, Gabriel, Gautam, gehring, Geoffrey Irving, George Grzegorz Pawelczak, Grzegorz Pawelczak, George Sterpu, Gianluca Varisco, Gleb Popov, Greg Peatfield, Guillaume Klein, Gurpreet Singh, Gustavo Lima Chaves, Gyoung-Yoon Ryoo, haison, Hanton Yang, HanGuo97, Haraldur TóMas HallgríMsson, Hari Shankar, hehongliang, Heungsub Lee, Hoeseong Kim, Huan Li (李卓桓), HåKon Sandsmark, I-Hong, I-Hong Jhuo, Ilham Firdausi Putra, Ilango R, Imran Salam, Innovimax, Jacky Ko, Irene Dea, Ivan Habernal, Jakub Lipinski, Jacky, Jason Zaman, Jason Zavaglia, jayhpark530, jcf94, jefby, Jeff Daily, Jeff Poznanovic, Jeffrey Poznanovic, Jekyll Lai, jer, Jeroen BéDorf, jerryyin, jhalakp, jiakai, Jia Qingtong, Jiankang, JiangXIAO, Joe Bowser, Joe Q, Joe Quadrino, Joel Shapiro, Johan Gunnarsson, Jojimon Varghese, Jonas Rauber, Jonathan Kyl, Jonathan, Joon, Joppe Geluykens, Joseph Friedman, Josh Beal,  jtressle, Julian Niedermeier, Junqin Zhang, Justin Dujardin, Justin Tunis, jwu, K. Hodges, kaixih, Kaixi Hou, kjopek, Karl Lessard, Karl Weinmeister, Karthik Muthuraman, Kashif Rasul, Kay Zhu, Kbhute-Ibm, KDR, Keno Fischer, Kevin Mader, khanhlvg, Kilaru Yasaswi Sri Chandra Gandhi, Koan-Sin Tan, Koock Yoon, kouml, ktaebum, Kyuwon Kim, Lakshay Tokas, Laurent Le Brun, leike666666, leonard951, Leslie-Fang, Letian Kang, Li, Guizi, Loo Rong Jie, Lucas Hendren, Lukas Folle, Lukas Geiger, Luke Han, luxupu, lvli, Ma, Guokai, Mahmoud Abuzaina, Maksym Kysylov, Mandar Deshpande, manhyuk, Manraj Singh Grover, Marco Gaido, Marek Drozdowski, Margaret Maynard-Reid, Mark Ryan, mars20, Mateusz Chudyk, Matt Conley, mbhuiyan, mdfaijul, Mei Jie, Melissa Grueter, merturl, MichaelKonobeev, Michael KäUfl, Michal W. Tarnowski, MickaëL Schoentgen, Miguel Morin, Mihail Salnikov, Mikalai Drabovich, Mike Arpaia, Mike Holcomb, minds, monklof, Moses Marin, mpppk, Mr. Metal, Mshr-H, musikisomorphie, nammbash, Natalia Gimelshein, Nathan Luehr, Nayana-Ibm, Nayana Thorat, neargye, Neeraj Pradhan, Nehal J Wani, Neil, Nick, Nick Lewycky, Niels Ole Salscheider, Niklas SilfverströM, Niranjan Hasabnis, Nuka-137, Nutti, ocjosen, olicht, omeir1, P Sudeepam, Paige Bailey, Palmer Lao, Pan Daoxin, Pariksheet Pinjari, Pasquale Minervini, Patrick J. Lopresti, Patrik Gustavsson, Pavel Akhtyamov, Pavel Samolysov, PENGWA, per1234, PeterLee, Phan Van Nguyen Duc, Philipp Jund, Phillip Kravtsov, Pooya Davoodi, Pranav Marathe, Putra Manggala, Qingqing Cao, R S Nikhil Krishna, Rajeshwar Reddy T, Ramon ViñAs, Rasmus Diederichsen, Reuben Morais, robert, Rohit Gupta, Roland Zimmermann, Roman Soldatow, RonLek, Ruizhe, Ryan Jiang, saishruthi, Saleem Abdulrasool, Samantha Andow, Sami Kama, Sami Kama, Sana-Damani, Saurabh Deoras, sdamani, Sean Morgan, seanshpark, Sebastien Iooss, Serv-Inc, Severen Redwood, Shahzad Lone, Shashank Gupta, shashvat, Shashvat Chand Shahi, Shubham Goyal, Shashi, Sigrid Keydana, Siju, Siju Samuel, sleighsoft, smilu97, Snease-Abq, Son Tran, Spencer Schaber, sremedios, Srini511, srinivasan.narayanamoorthy, Steve Lang, Steve Nesae, Subin, Sumesh Udayakumaran, Sungmann Cho, sunway513, Supriya Rao, sxwang, Tae-Hwan Jung, Taehoon Lee, Takeo Sawada, Taylor Jakobson, Taylor Thornton, Ted Chang, TengLu, terryky, ThisIsIsaac, ThisIsPIRI, Thomas Deegan, Thomas Hagebols, tianyapiaozi, Till Hoffmann, Tim Zaman, tomguluson92, Tongxuan Liu, Trent Lo, Trevor Morris, TungJerry, Tyorden, Uday Bondhugula, v1incent, Vagif, Vasileios Lioutas, vbvg2008, vcarpani, Vijay Ravichandran, Vikram Tiwari,Viktor Gal,  Vishwak Srinivasan, Vincent, Vishnuvardhan Janapati, Vitor-Alves, Vivek Suryamurthy, wangsiyu, wateryzephyr, WeberXie, Wei Wang, WeijieSun, Wen-Heng (Jack) Chung, wenxizhu, Will Battel, William D. Irons, winstonq, wyzhao, Xiaoming (Jason) Cui, Xiaoquan Kong, Xin, Xinping Wang, Yan Facai (颜发才), Yann-Yy, Yasir Modak, Yasuhiro Matsumoto, ymodak, Yong Tang, Yongfeng Gu, Younes Khoudli, Yuan Lin, Yuan (Terry) Tang, Yuchen Ying, Yves-Noel Weweler, zhangyujing, zjjott, zyeric, 王振华 (Zhenhua Wang), 黄鑫
 
+# Release 1.14.1
+
+## Bug Fixes and Other Changes
+
+*  The 1.14.1 whl package is built with ROCm2.7 user-bit environment
 
 # Release 1.14.0
+
+## ROCm specific features
+
+*   TF-ROCm integrates the ROCm RCCL library as the collective communication
+    routines for mGPU computation
+*   TF-ROCm enables the XLA backend starting 1.14.0 release, currently, it's
+    functionality-complete, performance optimization in progress.
+
+## Known issues
+
+*   We recommend to disable MIOpen 2.0 ASM kernels for GFX803 GPUs using the
+    environment variable: `export MIOPEN_DEBUG_GCN_ASM_KERNELS=0`
 
 ## Major Features and Improvements
 
@@ -960,6 +977,18 @@ Wen-Heng (Jack) Chung, wenxizhu, Will Battel, William D. Irons, wyzhao, Xin,
 Yasuhiro Matsumoto, ymodak, Yong Tang, Younes Khoudli, Yuan Lin, Yves-Noel
 Weweler, Zantares, zjjott, 卜居, 王振华 (Wang Zhenhua), 黄鑫
 
+# Release 1.13.4
+
+## Bug Fixes and Other Changes
+
+*   The 1.13.4 whl package is built the ROCm2.6 user-bit environment
+
+# Release 1.13.3
+
+## Bug Fixes and Other Changes
+
+*   The 1.13.3 whl package is built the ROCm2.4 user-bit environment
+
 # Release 1.12.3
 
 ## Bug Fixes and Other Changes
@@ -976,6 +1005,13 @@ Weweler, Zantares, zjjott, 卜居, 王振华 (Wang Zhenhua), 黄鑫
 *   Fixes a potential security vulnerability where carefully crafted GIF images
     can produce a null pointer dereference during decoding.
 
+# Release 1.13.2
+
+## Bug Fixes and Other Changes
+
+*   TF-RCCL path fix for issue#370
+*   The 1.13.2 whl package is built the ROCm2.3 user-bit environment
+
 # Release 1.13.0
 
 ## Major Features and Improvements
@@ -984,6 +1020,11 @@ Weweler, Zantares, zjjott, 卜居, 王振华 (Wang Zhenhua), 黄鑫
 * TensorFlow GPU binaries are now built against CUDA 10 and TensorRT 5.0.
 * Support for Python3.7 on all operating systems.
 * Moved NCCL to core.
+
+## ROCm Features and Improvements
+
+*   MIOpen v1.7.1 integration
+*   Tensorflow VERBS support is enabled, details in: [TensorFlow Verbs Quick-Start](https://github.com/ROCmSoftwarePlatform/tensorflow-upstream/blob/r1.13-rocm/rocm_docs/tensorflow-verbs.md)
 
 ## Behavioral changes
 
@@ -1189,6 +1230,13 @@ Abhinav Upadhyay, Ag Ramesh, akikaaa, Alexis Louis, Anders Huss, Andreas Madsen,
 *   TensorFlow binaries are built with XLA support linked in by default.
 *   Ignite Dataset added to contrib/ignite that allows to work with Apache
     Ignite.
+
+## ROCm Features and Improvements
+
+*   MIOpenv1.6 integration
+*   Training in fp16 is fully supported
+*   Performance improvements in TF CNN benchmarks
+*   Layer fusion is supported, details in: [TensorFlow ROCm port high-level design document](https://github.com/ROCmSoftwarePlatform/tensorflow-upstream/blob/r1.12-rocm/rocm_docs/rocm-port-overview.md)
 
 ## Bug Fixes and Other Changes
 
@@ -1461,7 +1509,7 @@ Ag Ramesh, Alex Wiltschko, Alexander Pantyukhin, Amogh Mannekote, An Jiaoyang, A
   * [`tf.contrib.estimator.RNNEstimator`](https://www.tensorflow.org/versions/r1.9/api_docs/python/tf/contrib/estimator/RNNClassifier)
 * The [distributions.Bijector](https://www.tensorflow.org/versions/r1.9/api_docs/python/tf/contrib/distributions/bijectors/Bijector)
   API supports broadcasting for Bijectors with new API changes.
-  
+
 ## Breaking Changes
   * If you're opening empty variable scopes; replace `variable_scope('', ...)` by
     `variable_scope(tf.get_variable_scope(), ...)`.
@@ -1940,7 +1988,7 @@ Samuel He, Sandeep Dcunha, sandipmgiri, Sang Han, scott, Scott Mudge, Se-Won Kim
 Simone Cirillo, Steffen Schmitz, Suvojit Manna, Sylvus, Taehoon Lee, Ted Chang, Thomas Deegan,
 Till Hoffmann, Tim, Toni Kunic, Toon Verstraelen, Tristan Rice, Urs KöSter, Utkarsh Upadhyay,
 Vish (Ishaya) Abrams, Winnie Tsang, Yan Chen, Yan Facai (颜发才), Yi Yang, Yong Tang,
-Youssef Hesham, Yuan (Terry) Tang, Zhengsheng Wei, zxcqwe4906, 张志豪, 田传武 
+Youssef Hesham, Yuan (Terry) Tang, Zhengsheng Wei, zxcqwe4906, 张志豪, 田传武
 
 We are also grateful to all who filed issues or helped resolve them, asked and
 answered questions, and were part of inspiring discussions.
